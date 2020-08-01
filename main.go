@@ -2,95 +2,93 @@ package main
 
 import (
 	"context"
+	"encoding/xml"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
+	"path"
+	"strconv"
 	"syscall"
 	"time"
 
+	"github.com/fastwego/offiaccount/type/type_message"
+
 	"github.com/fastwego/offiaccount"
-	"github.com/fastwego/offiaccount/server"
 	"github.com/spf13/viper"
 
 	"github.com/gin-gonic/gin"
 )
+
+// 微信公众账号池
+var OffiAccounts = map[string]*offiaccount.OffiAccount{}
 
 func init() {
 	// 加载配置文件
 	viper.SetConfigFile(".env")
 	_ = viper.ReadInConfig()
 
-	// 初始化 公众号配置
-	{
-		offiaccount.Appid = viper.GetString("APPID")   // 公众号 appid
-		offiaccount.Secret = viper.GetString("SECRET") // 公众号 secret
+	OffiAccounts["account1"] = offiaccount.New(offiaccount.OffiAccountConfig{
+		Appid:          viper.GetString("APPID"),
+		Secret:         viper.GetString("SECRET"),
+		Token:          viper.GetString("TOKEN"),
+		EncodingAESKey: viper.GetString("EncodingAESKey"),
+	})
 
-		server.Token = viper.GetString("TOKEN")                   // 接口校验 Token
-		server.EncodingAESKey = viper.GetString("EncodingAESKey") // 消息 aes 加密 key
-
-		log.Println(strings.Join([]string{offiaccount.Appid, offiaccount.Secret, server.Token, server.EncodingAESKey}, "/"))
-		if offiaccount.Appid == "" || offiaccount.Secret == "" {
-			panic("APPID/SECRET not found")
-		}
-	}
+	OffiAccounts["account2"] = offiaccount.New(offiaccount.OffiAccountConfig{
+		Appid:          viper.GetString("APPID2"),
+		Secret:         viper.GetString("SECRET2"),
+		Token:          viper.GetString("TOKEN2"),
+		EncodingAESKey: viper.GetString("EncodingAESKey2"),
+	})
 }
 
 func EchoStr(c *gin.Context) {
-	server.EchoStr(c.Writer, c.Request)
-	if !c.Writer.Written() {
-		// 兜底响应
-		c.Writer.WriteString(server.SUCCESS)
-	}
+	// 区分不同账号
+	account := path.Base(c.Request.URL.Path)
+
+	// 调用相应公众号服务
+	OffiAccounts[account].Server.EchoStr(c.Writer, c.Request)
 }
 
 func HandleMessage(c *gin.Context) {
+	// 区分不同账号
+	account := path.Base(c.Request.URL.Path)
 
+	// 调用相应公众号服务
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	log.Println(string(body))
 
-	message, _ := server.ParseMessage(body)
+	message, err := OffiAccounts[account].Server.ParseMessage(body)
+	if err != nil {
+		log.Println(err)
+	}
 
 	switch message.(type) {
-	case server.MessageText: // 文本 消息
-		HandleTextMessage(c.Writer, message.(server.MessageText))
-	case server.MessageImage: // 图片 消息
-		HandleImageMessage(c.Writer, message.(server.MessageImage))
-	case server.MessageVoice:
-		// TODO
-	case server.MessageVideo:
-		// TODO
-	case server.MessageShortVideo:
-		// TODO
-	case server.MessageLink:
-		// TODO
-	case server.MessageLocation:
-		// TODO
-	case server.MessageFile:
-		// TODO
-	case server.MessageEvent: // 事件 处理
-		event, _ := server.ParseEvent(body)
-		switch event.(type) {
-		case server.EventSubscribe: // 关注
-			// TODO
-		case server.EventUnsubscribe: // 取关
-			// TODO
-		case server.EventScan: // 已关注 扫码
-			// TODO
-		case server.EventLocation: // 位置
-			// TODO
-		case server.EventClick: // 点击菜单
-			// TODO
-		case server.EventView: // 点击菜单链接
-			// TODO
+	case type_message.MessageText: // 文本 消息
+		msg := message.(type_message.MessageText)
+		replyMsg := type_message.ReplyMessageText{
+			ReplyMessage: type_message.ReplyMessage{
+				ToUserName:   type_message.CDATA(msg.FromUserName),
+				FromUserName: type_message.CDATA(msg.ToUserName),
+				CreateTime:   strconv.FormatInt(time.Now().Unix(), 10),
+				MsgType:      type_message.ReplyMsgTypeText,
+			},
+			Content: type_message.CDATA(msg.Content),
 		}
+
+		data, err := xml.Marshal(replyMsg)
+		if err != nil {
+			return
+		}
+		OffiAccounts[account].Server.Response(c.Writer, c.Request, data)
 	}
 
 	if !c.Writer.Written() {
+		log.Println("default")
 		// 兜底响应 success 告知微信服务器
-		c.Writer.WriteString(server.SUCCESS)
+		c.Writer.WriteString(offiaccount.SUCCESS)
 	}
 }
 
@@ -99,11 +97,13 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
 
-	// 服务器校验
-	router.GET("/api/weixin", EchoStr)
+	// 账号 1 服务
+	router.GET("/api/weixin/account1", EchoStr)
+	router.POST("/api/weixin/account1", HandleMessage)
 
-	// 消息响应
-	router.POST("/api/weixin", HandleMessage)
+	// 账号 2 服务
+	router.GET("/api/weixin/account2", EchoStr)
+	router.POST("/api/weixin/account2", HandleMessage)
 
 	// 接口演示
 	router.GET("/api/weixin/demo", ApiDemo)

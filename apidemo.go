@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/fastwego/offiaccount/menu"
+	"github.com/fastwego/offiaccount/apis/menu"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,18 +27,25 @@ func ApiDemo(c *gin.Context) {
 					}
 					{
 					   "type":"click",
-					   "name":"赞一下我们",
+					   "name":"赞一下~",
 					   "key":"V1001_GOOD"
 					}]
 			   }]
 		}`)
-		resp, err := menu.Create(payload)
+		resp, err := menu.Create(OffiAccounts["account2"], payload)
+		if err != nil {
+			c.Writer.WriteString(err.Error())
+			return
+		}
+		c.Writer.WriteString(string(resp))
+	case "/menu/get":
+		resp, err := menu.Get(OffiAccounts["account2"])
 		if err != nil {
 			c.Writer.WriteString(err.Error())
 			return
 		}
 		c.Writer.WriteString(string(resp))
 	default:
-		c.Writer.WriteString("eg: http://localhost/api/weixin/demo?api=/menu/create")
+		c.Writer.WriteString(api + " eg: http://localhost/api/weixin/demo?api=/menu/create")
 	}
 }
