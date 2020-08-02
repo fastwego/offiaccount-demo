@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/xml"
+	menu "github.com/fastwego/offiaccount-demo/menu"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -106,7 +107,7 @@ func main() {
 	router.POST("/api/weixin/account2", HandleMessage)
 
 	// 接口演示
-	router.GET("/api/weixin/demo", ApiDemo)
+	router.GET("/api/weixin/menu", menu.ApiDemo)
 
 	svr := &http.Server{
 		Addr:    viper.GetString("LISTEN"),
