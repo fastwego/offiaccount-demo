@@ -40,6 +40,8 @@ github.com/faabiosr/cachego v0.15.0/go.mod h1:L2EomlU3/rUWjzFavY9Fwm8B4zZmX2X6u8
 github.com/fastwego/offiaccount v0.0.0-20200801132735-550eb388c273 h1:WZUfHC626eNvysWTCls33MCtmi0DD1rQBAyLaxTx8Ak=
 github.com/fastwego/offiaccount v1.0.0-beta.1 h1:9noLcZy12AgWKKbralY5EbAKP7vHG+qPscQEZx4a0l8=
 github.com/fastwego/offiaccount v1.0.0-beta.1/go.mod h1:o+PYvjv2jtAPDVVOdTsIe1r/slTtrT5A4tPCIj3cv2k=
+github.com/fastwego/offiaccount v1.0.0-beta.2 h1:7VIsSN20tOiSUHl7Q+BFq6rwY0ur6DU6aoIZjGLRGS4=
+github.com/fastwego/offiaccount v1.0.0-beta.2/go.mod h1:o+PYvjv2jtAPDVVOdTsIe1r/slTtrT5A4tPCIj3cv2k=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
