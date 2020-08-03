@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/xml"
-	account "github.com/fastwego/offiaccount-demo/account"
-	menu "github.com/fastwego/offiaccount-demo/menu"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,6 +11,10 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	account "github.com/fastwego/offiaccount-demo/account"
+	menu "github.com/fastwego/offiaccount-demo/menu"
+	"github.com/fastwego/offiaccount-demo/oauth"
 
 	"github.com/fastwego/offiaccount/type/type_message"
 
@@ -62,15 +63,18 @@ func HandleMessage(c *gin.Context) {
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	log.Println(string(body))
 
-	message, err := OffiAccounts[account].Server.ParseMessage(body)
+	message, err := OffiAccounts[account].Server.ParseXML(body)
 	if err != nil {
 		log.Println(err)
 	}
 
+	var output interface{}
 	switch message.(type) {
 	case type_message.MessageText: // 文本 消息
 		msg := message.(type_message.MessageText)
-		replyMsg := type_message.ReplyMessageText{
+
+		// 回复文本消息
+		output = type_message.ReplyMessageText{
 			ReplyMessage: type_message.ReplyMessage{
 				ToUserName:   type_message.CDATA(msg.FromUserName),
 				FromUserName: type_message.CDATA(msg.ToUserName),
@@ -79,19 +83,9 @@ func HandleMessage(c *gin.Context) {
 			},
 			Content: type_message.CDATA(msg.Content),
 		}
-
-		data, err := xml.Marshal(replyMsg)
-		if err != nil {
-			return
-		}
-		OffiAccounts[account].Server.Response(c.Writer, c.Request, data)
 	}
 
-	if !c.Writer.Written() {
-		log.Println("default")
-		// 兜底响应 success 告知微信服务器
-		c.Writer.WriteString(offiaccount.SUCCESS)
-	}
+	OffiAccounts[account].Server.Response(c.Writer, c.Request, output)
 }
 
 func main() {
@@ -110,6 +104,7 @@ func main() {
 	// 接口演示
 	router.GET("/api/weixin/menu", menu.ApiDemo)
 	router.GET("/api/weixin/account", account.Account)
+	router.GET("/api/weixin/oauth", oauth.Oauth)
 
 	svr := &http.Server{
 		Addr:    viper.GetString("LISTEN"),
