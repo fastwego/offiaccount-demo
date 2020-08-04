@@ -12,6 +12,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fastwego/offiaccount-demo/user"
+
 	account "github.com/fastwego/offiaccount-demo/account"
 	menu "github.com/fastwego/offiaccount-demo/menu"
 	"github.com/fastwego/offiaccount-demo/oauth"
@@ -105,6 +107,7 @@ func main() {
 	router.GET("/api/weixin/menu", menu.ApiDemo)
 	router.GET("/api/weixin/account", account.Account)
 	router.GET("/api/weixin/oauth", oauth.Oauth)
+	router.GET("/api/weixin/user", user.ApiDemo)
 
 	svr := &http.Server{
 		Addr:    viper.GetString("LISTEN"),
