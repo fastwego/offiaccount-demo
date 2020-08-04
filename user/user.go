@@ -1,13 +1,11 @@
 package user
 
 import (
-	"net/url"
-
-	"github.com/fastwego/offiaccount/apis/user"
-
 	"github.com/fastwego/offiaccount"
+	"github.com/fastwego/offiaccount/apis/user"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"net/url"
 )
 
 var App *offiaccount.OffiAccount
@@ -44,4 +42,17 @@ func ApiDemo(c *gin.Context) {
 		listen := viper.GetString("LISTEN")
 		c.Writer.WriteString(action + " eg: //" + listen + "/api/weixin/user?action=/user/info")
 	}
+}
+
+//获取帐号的关注者列表,第一页
+func GetUserList(c *gin.Context) {
+	params := url.Values{}
+	params.Add("next_openid", "")
+	resp, err := user.Get(App, params)
+	if err != nil {
+		c.Writer.WriteString(err.Error())
+		return
+	}
+	c.Writer.Write(resp)
+	return
 }

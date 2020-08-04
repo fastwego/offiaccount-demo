@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/fastwego/offiaccount-demo/user"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,8 +12,6 @@ import (
 	"strconv"
 	"syscall"
 	"time"
-
-	"github.com/fastwego/offiaccount-demo/user"
 
 	account "github.com/fastwego/offiaccount-demo/account"
 	menu "github.com/fastwego/offiaccount-demo/menu"
@@ -108,6 +107,7 @@ func main() {
 	router.GET("/api/weixin/account", account.Account)
 	router.GET("/api/weixin/oauth", oauth.Oauth)
 	router.GET("/api/weixin/user", user.ApiDemo)
+	router.GET("/api/weixin/user/get_user_list", user.GetUserList)
 
 	svr := &http.Server{
 		Addr:    viper.GetString("LISTEN"),
