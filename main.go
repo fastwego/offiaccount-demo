@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/fastwego/offiaccount-demo/user"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/fastwego/offiaccount-demo/user"
 
 	account "github.com/fastwego/offiaccount-demo/account"
 	menu "github.com/fastwego/offiaccount-demo/menu"
@@ -33,27 +34,19 @@ func init() {
 	viper.SetConfigFile(".env")
 	_ = viper.ReadInConfig()
 
-	OffiAccounts["account1"] = offiaccount.New(offiaccount.OffiAccountConfig{
+	OffiAccounts["account1"] = offiaccount.New(offiaccount.Config{
 		Appid:          viper.GetString("APPID"),
 		Secret:         viper.GetString("SECRET"),
 		Token:          viper.GetString("TOKEN"),
 		EncodingAESKey: viper.GetString("EncodingAESKey"),
 	})
 
-	OffiAccounts["account2"] = offiaccount.New(offiaccount.OffiAccountConfig{
+	OffiAccounts["account2"] = offiaccount.New(offiaccount.Config{
 		Appid:          viper.GetString("APPID2"),
 		Secret:         viper.GetString("SECRET2"),
 		Token:          viper.GetString("TOKEN2"),
 		EncodingAESKey: viper.GetString("EncodingAESKey2"),
 	})
-}
-
-func EchoStr(c *gin.Context) {
-	// 区分不同账号
-	account := path.Base(c.Request.URL.Path)
-
-	// 调用相应公众号服务
-	OffiAccounts[account].Server.EchoStr(c.Writer, c.Request)
 }
 
 func HandleMessage(c *gin.Context) {
@@ -95,11 +88,15 @@ func main() {
 	router.Use(gin.Logger(), gin.Recovery())
 
 	// 账号 1 服务
-	router.GET("/api/weixin/account1", EchoStr)
+	router.GET("/api/weixin/account1", func(c *gin.Context) {
+		OffiAccounts["account1"].Server.EchoStr(c.Writer, c.Request)
+	})
 	router.POST("/api/weixin/account1", HandleMessage)
 
 	// 账号 2 服务
-	router.GET("/api/weixin/account2", EchoStr)
+	router.GET("/api/weixin/account2", func(c *gin.Context) {
+		OffiAccounts["account2"].Server.EchoStr(c.Writer, c.Request)
+	})
 	router.POST("/api/weixin/account2", HandleMessage)
 
 	// 接口演示

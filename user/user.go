@@ -1,11 +1,12 @@
 package user
 
 import (
+	"net/url"
+
 	"github.com/fastwego/offiaccount"
 	"github.com/fastwego/offiaccount/apis/user"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"net/url"
 )
 
 var App *offiaccount.OffiAccount
@@ -14,7 +15,7 @@ func init() {
 	viper.SetConfigFile(".env")
 	_ = viper.ReadInConfig()
 
-	config := offiaccount.OffiAccountConfig{
+	config := offiaccount.Config{
 		Appid:  viper.GetString("APPID"),
 		Secret: viper.GetString("SECRET"),
 	}

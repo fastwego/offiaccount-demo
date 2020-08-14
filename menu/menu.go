@@ -13,7 +13,7 @@ func init() {
 	viper.SetConfigFile(".env")
 	_ = viper.ReadInConfig()
 
-	config := offiaccount.OffiAccountConfig{
+	config := offiaccount.Config{
 		Appid:  viper.GetString("APPID"),
 		Secret: viper.GetString("SECRET"),
 	}
