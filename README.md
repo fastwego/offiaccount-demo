@@ -1,6 +1,6 @@
 ## offiaccount-demo 
 
-A demp project use fastwego/offiaccount sdk
+A demo project use fastwego/offiaccount sdk
 
 - checkout project `git clone https://github.com/fastwego/offiaccount-demo.git`
 - install fastwego/offiaccount `go get -u github.com/fastwego/offiaccount`
