@@ -1,7 +1,11 @@
 ## offiaccount-demo 
 
-A demo project use fastwego/offiaccount sdk
+A demo project for fastwego/offiaccount
 
+
+[![powered-by-fastwego](https://img.shields.io/badge/Powered%20By-fastwego-brightgreen)](https://github.com/fastwego)
+
+### Install
 - checkout project `git clone https://github.com/fastwego/offiaccount-demo.git`
 - install fastwego/offiaccount `go get -u github.com/fastwego/offiaccount`
 - build `go build`
