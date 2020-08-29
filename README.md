@@ -2,7 +2,6 @@
 
 A demo project for fastwego/offiaccount
 
-
 [![powered-by-fastwego](https://img.shields.io/badge/Powered%20By-fastwego-brightgreen)](https://github.com/fastwego)
 
 ### Install
@@ -12,3 +11,7 @@ A demo project for fastwego/offiaccount
 - edit config in `.env.dist` file and rename to `.env`
 - run `offiaccount-demo` & view `http://localhost/api/weixin`
 - that's all & good luck ;)
+
+### use case demo
+
+- [打通微信和钉钉服务是一种怎样的体验？](weixin-dingding-translate/README.md)
