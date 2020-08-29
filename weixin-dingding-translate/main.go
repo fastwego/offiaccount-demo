@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/fastwego/dingding"
-	"github.com/fastwego/dingding/apis/ai"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,6 +12,9 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/fastwego/dingding"
+	"github.com/fastwego/dingding/apis/ai"
 
 	"github.com/fastwego/offiaccount/type/type_message"
 
@@ -38,6 +39,8 @@ func init() {
 	OffiAccount = offiaccount.New(offiaccount.Config{
 		Appid:          viper.GetString("APPID"),
 		Secret:         viper.GetString("SECRET"),
+		Token:          viper.GetString("TOKEN"),
+		EncodingAESKey: viper.GetString("EncodingAESKey"),
 	})
 
 	// 创建钉钉应用实例
