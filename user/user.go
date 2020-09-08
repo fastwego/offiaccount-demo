@@ -21,7 +21,7 @@ func init() {
 	}
 	App = offiaccount.New(config)
 
-	App.SetLogger(nil)
+	//App.SetLogger(nil)
 }
 
 func ApiDemo(c *gin.Context) {
@@ -39,21 +39,19 @@ func ApiDemo(c *gin.Context) {
 			return
 		}
 		c.Writer.WriteString(string(resp))
+	case "/user/get_user_list": //获取帐号的关注者列表,第一页
+
+		params := url.Values{}
+		params.Add("next_openid", "")
+		resp, err := user.Get(App, params)
+		if err != nil {
+			c.Writer.WriteString(err.Error())
+			return
+		}
+		c.Writer.Write(resp)
+		return
 	default:
 		listen := viper.GetString("LISTEN")
 		c.Writer.WriteString(action + " eg: //" + listen + "/api/weixin/user?action=/user/info")
 	}
-}
-
-//获取帐号的关注者列表,第一页
-func GetUserList(c *gin.Context) {
-	params := url.Values{}
-	params.Add("next_openid", "")
-	resp, err := user.Get(App, params)
-	if err != nil {
-		c.Writer.WriteString(err.Error())
-		return
-	}
-	c.Writer.Write(resp)
-	return
 }

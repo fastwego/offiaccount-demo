@@ -24,7 +24,7 @@ func init() {
 }
 
 // Oauth 演示
-func Oauth(c *gin.Context) {
+func ApiDemo(c *gin.Context) {
 
 	code := c.Request.URL.Query().Get("code")
 	if code != "" {

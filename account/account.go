@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var OffiAccounts = map[string]*offiaccount.OffiAccount{}
+var App *offiaccount.OffiAccount
 
 func init() {
 	viper.SetConfigFile(".env")
@@ -18,10 +18,10 @@ func init() {
 		Appid:  viper.GetString("APPID"),
 		Secret: viper.GetString("SECRET"),
 	}
-	OffiAccounts["account"] = offiaccount.New(config)
+	App = offiaccount.New(config)
 }
 
-func Account(c *gin.Context) {
+func ApiDemo(c *gin.Context) {
 	action := c.Request.URL.Query().Get("action")
 	switch action {
 	case "created/qrcode":
@@ -33,7 +33,7 @@ func Account(c *gin.Context) {
 				}
 			}
 		}`)
-		resp, err := account.CreateQRCode(OffiAccounts["account"], payload)
+		resp, err := account.CreateQRCode(App, payload)
 		if err != nil {
 			c.Writer.WriteString(err.Error())
 			return
@@ -48,7 +48,7 @@ func Account(c *gin.Context) {
 				}
 			}
 		}`)
-		resp, err := account.CreateQRCode(OffiAccounts["account"], payload)
+		resp, err := account.CreateQRCode(App, payload)
 		if err != nil {
 			c.Writer.WriteString(err.Error())
 			return
@@ -59,7 +59,7 @@ func Account(c *gin.Context) {
 			"action":"long2short",
 			"long_url":"https://github.com/fastwego/offiaccount"
 		}`)
-		resp, err := account.ShortUrl(OffiAccounts["account"], payload)
+		resp, err := account.ShortUrl(App, payload)
 		if err != nil {
 			c.Writer.WriteString(err.Error())
 			return

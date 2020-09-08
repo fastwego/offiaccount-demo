@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var OffiAccounts = map[string]*offiaccount.OffiAccount{}
+var App *offiaccount.OffiAccount
 
 func init() {
 	viper.SetConfigFile(".env")
@@ -17,7 +17,7 @@ func init() {
 		Appid:  viper.GetString("APPID"),
 		Secret: viper.GetString("SECRET"),
 	}
-	OffiAccounts["account"] = offiaccount.New(config)
+	App = offiaccount.New(config)
 }
 
 func ApiDemo(c *gin.Context) {
@@ -26,25 +26,45 @@ func ApiDemo(c *gin.Context) {
 	case "/menu/create":
 		payload := []byte(`
 		{
-			 "button":[
-			 {
-				   "name":"菜单",
-				   "sub_button":[
-				   {	
-					   "type":"view",
-					   "name":"搜索",
-					   "url":"http://www.soso.com/"
-					}]
-			   }]
+		  "button": [
+			{
+			  "name": "发图",
+			  "sub_button": [
+				{
+				  "type": "pic_sysphoto",
+				  "name": "系统拍照发图",
+				  "key": "rselfmenu_1_0",
+				  "sub_button": []
+				},
+				{
+				  "type": "pic_photo_or_album",
+				  "name": "拍照或者相册发图",
+				  "key": "rselfmenu_1_1",
+				  "sub_button": []
+				},
+				{
+				  "type": "pic_weixin",
+				  "name": "微信相册发图",
+				  "key": "rselfmenu_1_2",
+				  "sub_button": []
+				}
+			  ]
+			},
+			{
+			  "name": "发送位置",
+			  "type": "location_select",
+			  "key": "rselfmenu_2_0"
+			}
+		  ]
 		}`)
-		resp, err := menu.Create(OffiAccounts["account"], payload)
+		resp, err := menu.Create(App, payload)
 		if err != nil {
 			c.Writer.WriteString(err.Error())
 			return
 		}
 		c.Writer.WriteString(string(resp))
 	case "/menu/get":
-		resp, err := menu.Get(OffiAccounts["account"])
+		resp, err := menu.Get(App)
 		if err != nil {
 			c.Writer.WriteString(err.Error())
 			return

@@ -12,6 +12,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fastwego/offiaccount-demo/material"
+
 	"github.com/fastwego/offiaccount-demo/user"
 
 	account "github.com/fastwego/offiaccount-demo/account"
@@ -101,10 +103,10 @@ func main() {
 
 	// 接口演示
 	router.GET("/api/weixin/menu", menu.ApiDemo)
-	router.GET("/api/weixin/account", account.Account)
-	router.GET("/api/weixin/oauth", oauth.Oauth)
+	router.GET("/api/weixin/account", account.ApiDemo)
+	router.GET("/api/weixin/oauth", oauth.ApiDemo)
 	router.GET("/api/weixin/user", user.ApiDemo)
-	router.GET("/api/weixin/user/get_user_list", user.GetUserList)
+	router.GET("/api/weixin/material", material.ApiDemo)
 
 	svr := &http.Server{
 		Addr:    viper.GetString("LISTEN"),
