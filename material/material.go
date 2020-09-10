@@ -24,14 +24,21 @@ func init() {
 }
 
 func ApiDemo(c *gin.Context) {
-
-	// 上传视频
+	// 新增临时素材
 	params := url.Values{}
+	params.Add("type", "image")
+	resp, err := material.MediaUpload(App, "./.data/img.jpg", params)
+	fmt.Println(string(resp), err)
+
+	c.Writer.WriteString(string(resp))
+
+	// 新增永久素材
+	params = url.Values{}
 	params.Add("type", "video")
 	fields := map[string]string{
 		"description": `{"title":"Hii","introduction":"Hi"}`,
 	}
-	resp, err := material.AddMaterial(App, "./.data/1.mp4", params, fields)
+	resp, err = material.AddMaterial(App, "./.data/1.mp4", params, fields)
 	fmt.Println(string(resp), err)
 
 	c.Writer.WriteString(string(resp))
