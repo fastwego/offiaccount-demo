@@ -80,7 +80,7 @@ func ApiDemo(c *gin.Context) {
 	}
 
 	// 获取授权跳转链接
-	link := oauth.GetAuthorizeUrl(Ctx.Config.Appid, "http:/127.0.0.1/api/weixin/oauth", oauth.ScopeSnsapiUserinfo, "STATE")
+	link := oauth.GetAuthorizeUrl(Ctx.Config.Appid, "http://"+c.Request.Host+c.Request.RequestURI, oauth.ScopeSnsapiUserinfo, "STATE")
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.Writer.WriteString(fmt.Sprintf("在微信中访问:<br/> <a href='%s'>%s</a>", link, link))
 }
