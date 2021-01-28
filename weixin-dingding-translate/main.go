@@ -15,12 +15,14 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
@@ -28,7 +30,6 @@ import (
 	"time"
 
 	"github.com/fastwego/dingding"
-	"github.com/fastwego/dingding/apis/ai"
 
 	"github.com/fastwego/offiaccount/type/type_message"
 
@@ -41,8 +42,8 @@ import (
 // 微信公众账号
 var OffiAccount *offiaccount.OffiAccount
 
-// 钉钉 App 实例
-var DingApp *dingding.App
+var DingClient *dingding.Client
+var DingConfig map[string]string
 
 func init() {
 	// 加载配置文件
@@ -57,11 +58,23 @@ func init() {
 		EncodingAESKey: viper.GetString("EncodingAESKey"),
 	})
 
-	// 创建钉钉应用实例
-	DingApp = dingding.NewApp(dingding.AppConfig{
-		AppKey:    viper.GetString("AppKey"),
-		AppSecret: viper.GetString("AppSecret"),
+	DingConfig = map[string]string{
+		"AppKey":    viper.GetString("AppKey"),
+		"AppSecret": viper.GetString("AppSecret"),
+	}
+
+	// 钉钉 AccessToken 管理器
+	atm := dingding.NewAccessTokenManager(DingConfig["AppKey"], "access_token", func() *http.Request {
+		params := url.Values{}
+		params.Add("appkey", DingConfig["AppKey"])
+		params.Add("appsecret", DingConfig["AppSecret"])
+		req, _ := http.NewRequest(http.MethodGet, dingding.ServerUrl+"/gettoken?"+params.Encode(), nil)
+
+		return req
 	})
+
+	// 钉钉 客户端
+	DingClient = dingding.NewClient(atm)
 }
 
 func HandleMessage(c *gin.Context) {
@@ -98,7 +111,9 @@ func HandleMessage(c *gin.Context) {
 		}
 
 		// 翻译接口
-		resp, err := ai.Translate(DingApp, data)
+		request, _ := http.NewRequest(http.MethodPost, "/topapi/ai/mt/translate", bytes.NewReader(data))
+		resp, err := DingClient.Do(request)
+
 		fmt.Println(string(resp), err)
 
 		if err != nil {
