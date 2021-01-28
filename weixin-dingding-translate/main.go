@@ -29,6 +29,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/faabiosr/cachego/file"
+
 	"github.com/fastwego/dingding"
 
 	"github.com/fastwego/offiaccount/type/type_message"
@@ -64,14 +66,19 @@ func init() {
 	}
 
 	// 钉钉 AccessToken 管理器
-	atm := dingding.NewAccessTokenManager(DingConfig["AppKey"], "access_token", func() *http.Request {
-		params := url.Values{}
-		params.Add("appkey", DingConfig["AppKey"])
-		params.Add("appsecret", DingConfig["AppSecret"])
-		req, _ := http.NewRequest(http.MethodGet, dingding.ServerUrl+"/gettoken?"+params.Encode(), nil)
+	atm := &dingding.DefaultAccessTokenManager{
+		Id:   DingConfig["AppKey"],
+		Name: "access_token",
+		GetRefreshRequestFunc: func() *http.Request {
+			params := url.Values{}
+			params.Add("appkey", DingConfig["AppKey"])
+			params.Add("appsecret", DingConfig["AppSecret"])
+			req, _ := http.NewRequest(http.MethodGet, dingding.ServerUrl+"/gettoken?"+params.Encode(), nil)
 
-		return req
-	})
+			return req
+		},
+		Cache: file.New(os.TempDir()),
+	}
 
 	// 钉钉 客户端
 	DingClient = dingding.NewClient(atm)
